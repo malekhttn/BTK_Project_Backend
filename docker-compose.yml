@@ -1,47 +1,35 @@
 version: '3.8'
 
 services:
-  mysql_db:
-    image: mysql:8.0
-    container_name: mysql_db
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: DBplacement
-      MYSQL_USER: appuser
-      MYSQL_PASSWORD: apppassword
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - placement_network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
-      interval: 5s
-      timeout: 10s
-      retries: 10
-    command: --default-authentication-plugin=mysql_native_password
-
-  app:
-    build: .
-    container_name: placement_Project
-    depends_on:
-      mysql_db:
-        condition: service_healthy
-    ports:
-      - "8085:8085"
-    environment:
-      SPRING_PROFILES_ACTIVE: prod
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_db:3306/DBplacement?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD:
-    networks:
-      - placement_network
+  mysqldb:
+    image: mysql:5.7
     restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD:
+      MYSQL_DATABASE: DBplacement
+    ports:
+      - "3360:3306"
+    volumes:
+      - db:/var/lib/mysql
+
+  app-:
+    image: malek2642/projectplacement:latest
+    depends_on:
+      - mysqldb
+    restart: on-failure
+    ports:
+      - "8085:8085"  # Changé de 8082 à 8085 ici
+    environment:
+      SPRING_APPLICATION_JSON: '{
+        "spring.datasource.url": "jdbc:mysql://localhost:3306/DBplacement?createDatabaseIfNotExist=true&useSSL=false",
+        "spring.datasource.username": "root",
+        "spring.datasource.password": "null",
+        "spring.jpa.properties.hibernate.dialect": "org.hibernate.dialect.MySQL5InnoDBDialect",
+        "spring.jpa.hibernate.ddl-auto": "update",
+        "server.port": "8085"  # Ajout explicite du port Spring Boot
+      }'
+    stdin_open: true
+    tty: true
 
 volumes:
-  mysql_data:
-
-networks:
-  placement_network:
-    driver: bridge
+  db:
