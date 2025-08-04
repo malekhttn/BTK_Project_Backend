@@ -3,11 +3,15 @@ package com.example.PFE.Controller;
 import com.example.PFE.DTO.UserDTO;
 import com.example.PFE.IService.UserIService;
 import com.example.PFE.Model.User;
+import com.example.PFE.ServiceImpl.ReclamationServiceImpl;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +23,7 @@ public class UserController {
 
     @Autowired
     private UserIService userService;
+    private static final Logger logger = LogManager.getLogger(ReclamationServiceImpl.class);
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN') or hasRole('CHEF_AGENCE')")
@@ -52,6 +57,8 @@ public class UserController {
         dto.setUsername(user.getUsername());
         dto.setEmail(user.getEmail());
         dto.setRole(user.getRole());
+        dto.setBlocked(user.isBlocked());
+        dto.setBlockReason(user.getBlockReason());
         return dto;
     }
 
@@ -97,5 +104,23 @@ public class UserController {
             @RequestParam String currentPassword,
             @RequestParam String newPassword) {
         return ResponseEntity.ok(userService.changePassword(currentPassword, newPassword));
+    }
+
+
+    @PostMapping("/{id}/block")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
+    public ResponseEntity<UserDTO> blockUser(
+            @PathVariable Long id,
+            @RequestParam(required = false) String reason) {
+
+        User blocked = userService.blockUser(id, reason);
+        return ResponseEntity.ok(convertToDTO(blocked));
+    }
+
+    @PostMapping("/{id}/unblock")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
+    public ResponseEntity<UserDTO> unblockUser(@PathVariable Long id) {
+        User unblocked = userService.unblockUser(id);
+        return ResponseEntity.ok(convertToDTO(unblocked));
     }
 }

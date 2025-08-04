@@ -13,4 +13,6 @@ public class UserDTO {
     private String username;
     private String email;
     private User.Role role;
+    private boolean isBlocked;
+    private String blockReason;
 }

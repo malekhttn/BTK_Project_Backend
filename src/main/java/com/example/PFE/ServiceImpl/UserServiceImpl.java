@@ -126,4 +126,27 @@ public class UserServiceImpl implements UserIService {
         return userRepository.save(currentUser);
     }
 
+
+    @Override
+    public User blockUser(Long id, String reason) {
+        User user = getUserById(id);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        user.setBlocked(true);
+        user.setBlockReason(reason);
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User unblockUser(Long id) {
+        User user = getUserById(id);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        user.setBlocked(false);
+        user.setBlockReason(null);
+        return userRepository.save(user);
+    }
+
 }
