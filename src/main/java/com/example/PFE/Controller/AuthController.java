@@ -90,7 +90,11 @@ public class AuthController {
 public ResponseEntity<?> login(@RequestBody UserCredentials credentials) {
     try {
         User user = userService.findByUsername(credentials.getUsername());
-
+        // Vérifier si l'utilisateur est bloqué
+        if (user.getBlock() == 1) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Votre compte est bloqué");
+        }
         // Check if using temporary password
         if (user.getTempPassword() != null) {
             if (!passwordEncoder.matches(credentials.getPassword(), user.getTempPassword())) {

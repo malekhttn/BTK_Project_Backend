@@ -41,20 +41,16 @@ public class User {
     @Column(name = "temp_password_expiry")
     @Temporal(TemporalType.TIMESTAMP)
     private Date tempPasswordExpiry;
-    @Column(name = "is_blocked", nullable = false)
-    private boolean isBlocked = false;
+    private int block = 0; // 0=actif, 1=bloqué
 
-    @Column(name = "block_reason")
-    private String blockReason;
+
+
     public enum Role {
         ADMIN,
         SUPER_ADMIN,
         CHEF_AGENCE
     }
 
-    public boolean isBlocked() {
-        return this.isBlocked;
-    }
 
 
 }

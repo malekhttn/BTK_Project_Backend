@@ -57,8 +57,7 @@ public class UserController {
         dto.setUsername(user.getUsername());
         dto.setEmail(user.getEmail());
         dto.setRole(user.getRole());
-        dto.setBlocked(user.isBlocked());
-        dto.setBlockReason(user.getBlockReason());
+        dto.setBlock(user.getBlock());
         return dto;
     }
 
@@ -105,22 +104,13 @@ public class UserController {
             @RequestParam String newPassword) {
         return ResponseEntity.ok(userService.changePassword(currentPassword, newPassword));
     }
-
-
-    @PostMapping("/{id}/block")
+    // UserController.java
+    @PostMapping("/{id}/toggle-block")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
-    public ResponseEntity<UserDTO> blockUser(
-            @PathVariable Long id,
-            @RequestParam(required = false) String reason) {
-
-        User blocked = userService.blockUser(id, reason);
-        return ResponseEntity.ok(convertToDTO(blocked));
+    public ResponseEntity<UserDTO> toggleBlockUser(@PathVariable Long id) {
+        User updated = userService.toggleBlockUser(id);
+        return ResponseEntity.ok(convertToDTO(updated));
     }
 
-    @PostMapping("/{id}/unblock")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
-    public ResponseEntity<UserDTO> unblockUser(@PathVariable Long id) {
-        User unblocked = userService.unblockUser(id);
-        return ResponseEntity.ok(convertToDTO(unblocked));
-    }
+
 }

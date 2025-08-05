@@ -18,6 +18,5 @@ public interface UserIService  {
     User findByUsername(String username);
     User findByEmail(String email);
     User findByResetToken(String token);
-    User blockUser(Long id, String reason);
-    User unblockUser(Long id);
+    User toggleBlockUser(Long id); // Une seule méthode pour basculer entre bloqué/débloqué
 }
