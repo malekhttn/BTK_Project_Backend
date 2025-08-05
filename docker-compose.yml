@@ -3,7 +3,7 @@ version: '3.8'
 services:
   mysqldb:
     image: mysql:5.7
-    container_name: mysql_db
+    container_name: placement_mysql_db  # Changé pour éviter les conflits
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
@@ -23,7 +23,7 @@ services:
 
   app:
     image: malek2642/projectplacement:latest
-    container_name: placement_Project
+    container_name: placement_app  # Changé pour plus de cohérence
     depends_on:
       mysqldb:
         condition: service_healthy
@@ -31,7 +31,7 @@ services:
     ports:
       - "8085:8085"
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://localhost:3306/DBplacement?createDatabaseIfNotExist=true&useSSL=false"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://placement_mysql_db:3306/DBplacement?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"  # Corrigé
       SPRING_DATASOURCE_USERNAME: "root"
       SPRING_DATASOURCE_PASSWORD: "rootpassword"
       SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
