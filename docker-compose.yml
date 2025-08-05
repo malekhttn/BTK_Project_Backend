@@ -26,7 +26,7 @@ services:
     ports:
       - "8085:8085"
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://bureau-mysqldb-1:3306/DBplacement?useSSL=false&allowPublicKeyRetrieval=true"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://localhost:3306/DBplacement?createDatabaseIfNotExist=true&useSSL=false"
       SPRING_DATASOURCE_USERNAME: "root"
       SPRING_DATASOURCE_PASSWORD: "rootpassword"
       SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
