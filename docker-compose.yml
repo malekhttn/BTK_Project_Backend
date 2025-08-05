@@ -5,31 +5,31 @@ services:
     image: mysql:5.7
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD:
+      MYSQL_ROOT_PASSWORD: MonSuperPassword123!  # 🔒 Mot de passe root
       MYSQL_DATABASE: DBplacement
+      MYSQL_USER: admin                          # ⚠️ Utilisateur optionnel
+      MYSQL_PASSWORD: AdminPassword123!          # 🔒 Mot de passe utilisateur
     ports:
-      - "3360:3306"
+      - "3360:3306"  # Port host:3360 → conteneur:3306
     volumes:
-      - db:/var/lib/mysql
+      - mysql_data:/var/lib/mysql  # Persistance des données
+    command: --default-authentication-plugin=mysql_native_password  # Compatibilité
 
-  app-:
+  app:
     image: malek2642/projectplacement:latest
     depends_on:
       - mysqldb
     restart: on-failure
     ports:
-      - "8085:8085"  # Changé de 8082 à 8085 ici
+      - "8085:8085"
     environment:
       SPRING_APPLICATION_JSON: '{
-        "spring.datasource.url": "jdbc:mysql://localhost:3306/DBplacement?createDatabaseIfNotExist=true&useSSL=false",
+        "spring.datasource.url": "jdbc:mysql://mysqldb:3306/DBplacement?useSSL=false",
         "spring.datasource.username": "root",
-        "spring.datasource.password": "null",
-        "spring.jpa.properties.hibernate.dialect": "org.hibernate.dialect.MySQL5InnoDBDialect",
+        "spring.datasource.password": "MonSuperPassword123!",
         "spring.jpa.hibernate.ddl-auto": "update",
-        "server.port": "8085"  # Ajout explicite du port Spring Boot
+        "server.port": "8085"
       }'
-    stdin_open: true
-    tty: true
 
 volumes:
-  db:
+  mysql_data:  # Volume nommé pour MySQL
