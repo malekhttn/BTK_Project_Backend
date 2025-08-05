@@ -3,10 +3,13 @@ version: '3.8'
 services:
   mysqldb:
     image: mysql:5.7
+    container_name: mysql_db
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: DBplacement
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: adminpassword
     ports:
       - "3360:3306"
     volumes:
@@ -14,24 +17,32 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
-      interval: 5s
-      timeout: 10s
-      retries: 10
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   app:
     image: malek2642/projectplacement:latest
+    container_name: placement_Project
     depends_on:
       mysqldb:
         condition: service_healthy
-    restart: on-failure
+    restart: unless-stopped
     ports:
-      - "8085:8085" # Changez ce port si nécessaire (ex: 8086:8085)
+      - "8085:8085"
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysqldb:3306/DBplacement?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://localhost:3306/DBplacement?createDatabaseIfNotExist=true&useSSL=false"
       SPRING_DATASOURCE_USERNAME: "root"
       SPRING_DATASOURCE_PASSWORD: "rootpassword"
       SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
       SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: "30000"
+      SERVER_PORT: "8085"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   mysql_data:
+    driver: local
