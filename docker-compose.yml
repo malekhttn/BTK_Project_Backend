@@ -11,8 +11,9 @@ services:
       - "3360:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
       interval: 5s
       timeout: 10s
       retries: 10
@@ -24,13 +25,13 @@ services:
         condition: service_healthy
     restart: on-failure
     ports:
-      - "8085:8085"
+      - "8085:8085" # Changez ce port si nécessaire (ex: 8086:8085)
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://localhost:3306/DBplacement?createDatabaseIfNotExist=true&useSSL=false"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysqldb:3306/DBplacement?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
       SPRING_DATASOURCE_USERNAME: "root"
       SPRING_DATASOURCE_PASSWORD: "rootpassword"
       SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
-      SPRING_DATASOURCE_HIKARI_CONNECTION-TIMEOUT: "60000"
+      SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: "30000"
 
 volumes:
   mysql_data:
