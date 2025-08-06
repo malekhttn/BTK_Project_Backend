@@ -1,11 +1,12 @@
 package com.example.PFE;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = { SystemMetricsAutoConfiguration.class })
 @EnableJpaRepositories(basePackages = "com.example.PFE.Repository")
 public class PfeApplication {
 
