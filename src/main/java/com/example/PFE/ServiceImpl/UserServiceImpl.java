@@ -31,10 +31,19 @@ public class UserServiceImpl implements UserIService {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new RuntimeException("Email already registered");
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        // Encoder le mot de passe
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+
+        // Initialiser le block à 0 si non défini
+        if (user.getBlock() != 0 && user.getBlock() != 1) {
+            user.setBlock(0);
+        }
+
         return userRepository.save(user);
     }
-
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -130,7 +139,14 @@ public class UserServiceImpl implements UserIService {
     @Override
     public User toggleBlockUser(Long id) {
         User user = getUserById(id);
-        user.setBlock(user.getBlock() == 0 ? 1 : 0); // Basculer entre 0 et 1
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+
+        // Basculer entre 0 et 1
+        user.setBlock(user.getBlock() == 0 ? 1 : 0);
+
+        // Sauvegarder
         return userRepository.save(user);
     }
 

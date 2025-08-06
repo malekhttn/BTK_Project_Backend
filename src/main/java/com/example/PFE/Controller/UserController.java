@@ -9,6 +9,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -28,10 +30,17 @@ public class UserController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN') or hasRole('CHEF_AGENCE')")
     public ResponseEntity<UserDTO> createUser(@RequestBody User user) {
+        // Assurer que le block est à 0 pour les nouveaux utilisateurs
+        user.setBlock(0);
+
+        // Validation supplémentaire pour CHEF_AGENCE
+        if (user.getRole() == User.Role.CHEF_AGENCE && (user.getCodeAgence() == null || user.getCodeAgence().isEmpty())) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
         User created = userService.saveUser(user);
         return ResponseEntity.ok(convertToDTO(created));
     }
-
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN') or hasRole('CHEF_AGENCE')")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
@@ -108,9 +117,19 @@ public class UserController {
     @PostMapping("/{id}/toggle-block")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<UserDTO> toggleBlockUser(@PathVariable Long id) {
+        User user = userService.getUserById(id);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Empêcher de bloquer soi-même
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getName().equals(user.getUsername())) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
         User updated = userService.toggleBlockUser(id);
         return ResponseEntity.ok(convertToDTO(updated));
     }
-
 
 }

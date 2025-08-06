@@ -73,6 +73,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/reclamations/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers(
                                 "/api/auth/login",
+                                "/actuator/prometheus",
                                 "/api/auth/register",
                                 "/api/auth/forgot-password",
                                 "/api/auth/auto-reset-password",
