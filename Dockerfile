@@ -1,5 +1,10 @@
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jre-jammy
+
 WORKDIR /app
-COPY /target/PFE-0.0.1-SNAPSHOT.jar PFE-0.0.1-SNAPSHOT.jar
-EXPOSE 8010
-ENTRYPOINT ["java", "-jar", "PFE-0.0.1-SNAPSHOT.jar"]
+COPY target/PFE-0.0.1-SNAPSHOT.jar app.jar
+
+# Configuration pour résoudre les problèmes de cgroups
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+
+EXPOSE 8085
+ENTRYPOINT ["java", "-jar", "app.jar"]
